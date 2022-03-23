@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gpio-net/tsb"
+	"github.com/traulfs/tsb"
 )
 
 func main() {
