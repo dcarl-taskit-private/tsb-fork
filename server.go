@@ -54,9 +54,9 @@ const (
 )
 
 const (
-	UartNoneParity UartBits = iota << 10
-	UartEvenParity
-	UartOddParity
+	UartParityNone UartBits = iota << 10
+	UartParityEven
+	UartParityOdd
 )
 
 const (

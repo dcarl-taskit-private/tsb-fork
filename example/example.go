@@ -10,7 +10,8 @@ import (
 )
 
 func main() {
-	serv, err := tsb.NewTcpServer("loaclhost:3000")
+	serv, err := tsb.NewSerialServer("/dev/ttyUSB0")
+	//serv, err := tsb.NewTcpServer("loaclhost:3000")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -22,7 +23,7 @@ func main() {
 }
 
 func (s *tsb.server) uartExample(jack int) {
-	GetChan, PutChan, err := s.UartInit(1, 115200, "8N1")
+	GetChan, PutChan, err := s.UartInit(1, tsb.UartBaud115200, tsb.UartData8&tsb.UartParityNone&tsb.UartStopbits1)
 	if err != nil {
 		log.Fatal(err)
 	}
