@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"log"
 	"net"
+
 	"github.com/tarm/serial"
 )
 
 const (
-	MaxJacks int = 8
+	MaxJacks byte = 8
 )
 
 type JackMode uint16
@@ -77,9 +78,10 @@ type jack struct {
 
 type server struct {
 	address string
-	typ 	string
+	typ     string
 	jack    [MaxJacks]jack
 	conn    net.Conn
+	sport   *serial.Port
 	tdPutCh chan DataTsb
 	tdGetCh chan DataTsb
 	done    chan struct{}
@@ -89,14 +91,15 @@ func NewSerialServer(address string) (server, error) {
 	var err error
 	s := server{address: address}
 	s.typ = "Serial"
-	s.conn, err := serial.OpenPort(&serial.Config{Name: address, Baud: 115200})
+	s.sport, err = serial.OpenPort(&serial.Config{Name: address, Baud: 115200})
 	if err != nil {
 		log.Fatal(err)
 	}
+	s.tdPutCh = PutData(s.sport)
+	s.tdGetCh, s.done = GetData(s.sport)
 	s.serv()
 	return s, nil
 }
-
 
 func NewTcpServer(address string) (server, error) {
 	var err error
@@ -106,14 +109,14 @@ func NewTcpServer(address string) (server, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	s.tdPutCh = PutData(s.conn)
+	s.tdGetCh, s.done = GetData(s.conn)
 	s.serv()
 	return s, nil
 }
 
 func (s *server) serv() {
-	s.tdPutCh = PutData(s.conn)
-	s.tdGetCh, s.done = GetData(s.conn)
-	fmt.Printf("TSB client connected to tsb server: %s", address)
+	fmt.Printf("TSB client connected to tsb server: %s", s.address)
 	go func() {
 		for {
 			select {
@@ -151,14 +154,18 @@ func (s *server) redirect(td DataTsb) {
 	s.jack[td.Ch[0]].GetChan[c] <- td.Payload
 }
 
-func (s *server) UartInit(jack uint8, baud UartBaud, bits UartBits) err error {
+func (s *server) UartInit(jack uint8, baud UartBaud, bits UartBits) (err error) {
+	return nil
 }
 
-func (s *server) I2cInit(jack uint8, address uint8) err error {
+func (s *server) I2cInit(jack uint8, address uint8) (err error) {
+	return nil
 }
 
-func (s *server) SpiInit(jack uint8) err error {
+func (s *server) SpiInit(jack uint8) (err error) {
+	return nil
 }
 
-func (s *server) PortInit(jack uint8, mode PortMode) err error {
+func (s *server) PortInit(jack uint8, mode PortMode) (err error) {
+	return nil
 }
