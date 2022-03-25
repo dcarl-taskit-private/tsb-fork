@@ -76,7 +76,7 @@ type jack struct {
 	PutChan    [TypError - TypModbus + 1]chan []byte
 }
 
-type server struct {
+type Server struct {
 	address string
 	typ     string
 	jack    [MaxJacks]jack
@@ -87,9 +87,9 @@ type server struct {
 	done    chan struct{}
 }
 
-func NewSerialServer(address string) (server, error) {
+func NewSerialServer(address string) (Server, error) {
 	var err error
-	s := server{address: address}
+	s := Server{address: address}
 	s.typ = "Serial"
 	s.sport, err = serial.OpenPort(&serial.Config{Name: address, Baud: 115200})
 	if err != nil {
@@ -115,7 +115,7 @@ func NewTcpServer(address string) (server, error) {
 	return s, nil
 }
 
-func (s *server) serv() {
+func (s *Server) serv() {
 	fmt.Printf("TSB client connected to tsb server: %s", s.address)
 	go func() {
 		for {
@@ -134,7 +134,7 @@ func (s *server) serv() {
 	}()
 }
 
-func (s *server) redirect(td DataTsb) {
+func (s *Server) redirect(td DataTsb) {
 	c := td.Typ[0]
 	if c < 0 || c > (TypError-TypModbus) {
 		log.Printf("Unknown Typ!\n\r")
@@ -154,18 +154,28 @@ func (s *server) redirect(td DataTsb) {
 	s.jack[td.Ch[0]].GetChan[c] <- td.Payload
 }
 
-func (s *server) UartInit(jack uint8, baud UartBaud, bits UartBits) (err error) {
+func (s *Server) UartInit(jack uint8, baud UartBaud, bits UartBits) (get chan []byte, put chan []byte, err error) {
+	checkJack(jack)
+	get = make(chan []byte, 10)
+	put = make(chan []byte, 10)
+	return get, put, nil
+}
+
+func (s *Server) I2cInit(jack uint8, address uint8) (err error) {
+	checkJack(jack)
 	return nil
 }
 
-func (s *server) I2cInit(jack uint8, address uint8) (err error) {
+func (s *Server) SpiInit(jack uint8) (err error) {
+	checkJack(jack)
 	return nil
 }
 
-func (s *server) SpiInit(jack uint8) (err error) {
+func (s *Server) PortInit(jack uint8, mode PortMode) (err error) {
+	checkJack(jack)
 	return nil
 }
 
-func (s *server) PortInit(jack uint8, mode PortMode) (err error) {
-	return nil
+func checkJack(jack uint8) {
+
 }

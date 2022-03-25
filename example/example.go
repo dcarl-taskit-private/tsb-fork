@@ -15,14 +15,14 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	go serv.uartExample(1)
-	go serv.uartExample(2)
-	go serv.portExample(3)
-	go serv.portExample(4)
-	go serv.i2cExample(5)
+	go uartExample(serv, 1)
+	go uartExample(serv, 2)
+	go portExample(serv, 3)
+	go portExample(serv, 4)
+	go i2cExample(serv, 5)
 }
 
-func (s *tsb.server) uartExample(jack int) {
+func uartExample(s tsb.Server, jack int) {
 	GetChan, PutChan, err := s.UartInit(1, tsb.UartBaud115200, tsb.UartData8&tsb.UartParityNone&tsb.UartStopbits1)
 	if err != nil {
 		log.Fatal(err)
@@ -34,4 +34,10 @@ func (s *tsb.server) uartExample(jack int) {
 	for {
 		fmt.Printf("Received from Jack%d: %s\n\r", jack, <-GetChan)
 	}
+}
+
+func portExample(s tsb.Server, jack int) {
+}
+
+func i2cExample(s tsb.Server, jack int) {
 }
