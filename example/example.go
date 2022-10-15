@@ -20,6 +20,7 @@ func main() {
 	go portExample(serv, 3)
 	go portExample(serv, 4)
 	go i2cExample(serv, 5)
+	go i2cExample(serv, 6)
 	for {
 
 	}
@@ -43,6 +44,20 @@ func uartExample(s tsb.Server, jack byte) {
 }
 
 func portExample(s tsb.Server, jack byte) {
+	GetChan, PutChan, err := s.PortInit(jack)
+	if err != nil {
+		log.Fatal(err)
+	}
+	go func() {
+		for {
+			PutChan <- []byte("Hello Port" + strconv.Itoa(int(jack)))
+			time.Sleep(time.Duration(jack) * time.Second)
+		}
+	}()
+	for {
+		msg := <-GetChan
+		fmt.Printf("Received from Port %d: %s\n\r", jack, msg)
+	}
 }
 
 func i2cExample(s tsb.Server, jack byte) {

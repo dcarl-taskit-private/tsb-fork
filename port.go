@@ -16,7 +16,7 @@ func (s *Server) PortInit(jack byte) (get chan []byte, put chan []byte, err erro
 				{
 					td := Packet{Ch: []byte{jack}, Typ: []byte{TypPort}, Payload: msg}
 					s.tdPutCh <- td
-					s.redirect((td))
+					//s.redirect((td))
 				}
 			case <-s.done:
 				{

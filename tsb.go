@@ -188,9 +188,11 @@ func GetData(r io.Reader) (chan Packet, chan struct{}) {
 		for {
 			n, err := r.Read(buf)
 			if err != nil {
-				if err != io.EOF {
-					// log.Fatal(err) funktioniert nicht unter Windows
-				}
+				/*
+					if err != io.EOF {
+						// log.Fatal(err) funktioniert nicht unter Windows
+					}
+				*/
 				break
 			}
 			for p := 0; p < n; p++ {
