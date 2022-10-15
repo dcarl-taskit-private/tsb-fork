@@ -57,7 +57,7 @@ func (s *Server) UartInit(jack uint8, baud UartBaud, bits UartBits) (get chan []
 				{
 					td := Packet{Ch: []byte{jack}, Typ: []byte{TypRaw}, Payload: msg}
 					s.tdPutCh <- td
-					s.redirect((td))
+					//s.redirect((td))
 				}
 			case <-s.done:
 				{

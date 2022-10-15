@@ -31,8 +31,10 @@ func uartExample(s tsb.Server, jack byte) {
 		log.Fatal(err)
 	}
 	go func() {
-		PutChan <- []byte("Hello Jack" + strconv.Itoa(int(jack)))
-		time.Sleep(time.Duration(jack) * time.Second)
+		for {
+			PutChan <- []byte("Hello Jack" + strconv.Itoa(int(jack)))
+			time.Sleep(time.Duration(jack) * time.Second)
+		}
 	}()
 	for {
 		msg := <-GetChan
