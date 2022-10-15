@@ -23,47 +23,6 @@ const (
 	JackSpi16
 )
 
-type UartBaud uint16
-
-const (
-	UartBaudAuto UartBaud = iota
-	UartBaud1200
-	UartBaud2400
-	UartBaud4800
-	UartBaud9600
-	UartBaud19200
-	UartBaud38400
-	UartBaud57600
-	UartBaud115200
-	UartBaud230400
-	UartBaud460800
-	UartBaud921600
-	UartBaud1000000
-	UartBaud1500000
-	UartBaud3000000
-)
-
-type UartBits uint16
-
-const (
-	UartData8 UartBits = iota << 12
-	UartData9
-	UartData7
-	UartData6
-	UartData5
-)
-
-const (
-	UartParityNone UartBits = iota << 10
-	UartParityEven
-	UartParityOdd
-)
-
-const (
-	UartStopbits1 UartBits = iota << 8
-	UartStopbits2
-)
-
 type PortMode uint16
 
 type jack struct {
@@ -153,48 +112,13 @@ func (s *Server) redirect(td Packet) {
 	s.jack[td.Ch[0]].GetChan[td.Typ[0]] <- td.Payload
 }
 
-func (s *Server) UartInit(jack uint8, baud UartBaud, bits UartBits) (get chan []byte, put chan []byte, err error) {
-	checkJack(jack)
-	s.jack[jack].GetChan[TypRaw] = make(chan []byte, 10)
-	get = s.jack[jack].GetChan[TypRaw]
-	put = make(chan []byte, 10)
-	go func(jack uint8) {
-		for {
-			select {
-			case msg := <-put:
-				{
-					td := Packet{Ch: []byte{jack}, Typ: []byte{TypRaw}, Payload: msg}
-					s.tdPutCh <- td
-					s.redirect((td))
-				}
-			case <-s.done:
-				{
-					fmt.Printf("Uart %d closed!\n", jack)
-					return
-				}
-			}
-			td := Packet{Ch: []byte{jack}, Typ: []byte{TypRaw}, Payload: <-put}
-			s.tdPutCh <- td
-		}
-	}(jack)
-	return get, put, nil
-}
-
-func (s *Server) I2cInit(jack uint8, address uint8) (err error) {
-	checkJack(jack)
-	return nil
-}
-
 func (s *Server) SpiInit(jack uint8) (err error) {
 	checkJack(jack)
 	return nil
 }
 
-func (s *Server) PortInit(jack uint8, mode PortMode) (err error) {
-	checkJack(jack)
-	return nil
-}
-
 func checkJack(jack uint8) {
-
+	if jack > MaxJacks {
+		log.Fatalf("Illegal Jack nr: %d", jack)
+	}
 }
