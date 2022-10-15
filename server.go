@@ -72,8 +72,8 @@ type jack struct {
 	uartConfig uint16 // 8 Bits uartBits, 8 Bits uartBaud
 	portConfig uint16 // 4 Bits Pullup, 4 Bits Direction, 4 Bits InputNotification, 4 Bits Output
 	i2cConfig  uint16 // 8 Bits Address
-	GetChan    [TypError - TypModbus + 1]chan []byte
-	PutChan    [TypError - TypModbus + 1]chan []byte
+	GetChan    [MaxTyp + 1]chan []byte
+	PutChan    [MaxTyp + 1]chan []byte
 }
 
 type Server struct {
@@ -82,8 +82,8 @@ type Server struct {
 	jack    [MaxJacks]jack
 	conn    net.Conn
 	sport   *serial.Port
-	tdPutCh chan DataTsb
-	tdGetCh chan DataTsb
+	tdPutCh chan Packet
+	tdGetCh chan Packet
 	done    chan struct{}
 }
 
@@ -101,9 +101,9 @@ func NewSerialServer(address string) (Server, error) {
 	return s, nil
 }
 
-func NewTcpServer(address string) (server, error) {
+func NewTcpServer(address string) (Server, error) {
 	var err error
-	s := server{address: address}
+	s := Server{address: address}
 	s.typ = "TCP"
 	s.conn, err = net.Dial("tcp", address)
 	if err != nil {
@@ -134,30 +134,49 @@ func (s *Server) serv() {
 	}()
 }
 
-func (s *Server) redirect(td DataTsb) {
-	c := td.Typ[0]
-	if c < 0 || c > (TypError-TypModbus) {
-		log.Printf("Unknown Typ!\n\r")
+func (s *Server) redirect(td Packet) {
+	if td.Typ[0] > MaxTyp {
+		log.Printf("Invalid Typ %d!\n\r", td.Typ[0])
 		return
 	}
 	if td.Ch[0] > MaxJacks || td.Ch[0] < 1 {
-		log.Printf("Invalid Jacknr!\n\r")
+		log.Printf("Invalid Jacknr %d!\n\r", td.Ch[0])
 		return
 	}
-	if s.jack[td.Ch[0]].GetChan[c] == nil {
-		log.Printf("Not initialized!\n\r")
+	if s.jack[td.Ch[0]].GetChan[td.Typ[0]] == nil {
+		log.Printf("Channel: %d is not initialized!\n\r", td.Ch[0])
 		return
 	}
-	if len(s.jack[td.Ch[0]].GetChan[c]) >= cap(s.jack[td.Ch[0]].GetChan[c]) {
-
+	if len(s.jack[td.Ch[0]].GetChan[td.Typ[0]]) >= cap(s.jack[td.Ch[0]].GetChan[td.Typ[0]]) {
+		log.Printf("Channel Overflow! Jack: %d, Typ: %d", td.Ch[0], td.Typ[0])
 	}
-	s.jack[td.Ch[0]].GetChan[c] <- td.Payload
+	s.jack[td.Ch[0]].GetChan[td.Typ[0]] <- td.Payload
 }
 
 func (s *Server) UartInit(jack uint8, baud UartBaud, bits UartBits) (get chan []byte, put chan []byte, err error) {
 	checkJack(jack)
-	get = make(chan []byte, 10)
+	s.jack[jack].GetChan[TypRaw] = make(chan []byte, 10)
+	get = s.jack[jack].GetChan[TypRaw]
 	put = make(chan []byte, 10)
+	go func(jack uint8) {
+		for {
+			select {
+			case msg := <-put:
+				{
+					td := Packet{Ch: []byte{jack}, Typ: []byte{TypRaw}, Payload: msg}
+					s.tdPutCh <- td
+					s.redirect((td))
+				}
+			case <-s.done:
+				{
+					fmt.Printf("Uart %d closed!\n", jack)
+					return
+				}
+			}
+			td := Packet{Ch: []byte{jack}, Typ: []byte{TypRaw}, Payload: <-put}
+			s.tdPutCh <- td
+		}
+	}(jack)
 	return get, put, nil
 }
 

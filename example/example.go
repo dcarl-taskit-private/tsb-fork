@@ -10,8 +10,8 @@ import (
 )
 
 func main() {
-	serv, err := tsb.NewSerialServer("/dev/ttyUSB0")
-	//serv, err := tsb.NewTcpServer("loaclhost:3000")
+	//serv, err := tsb.NewSerialServer("/dev/ttyUSB0")
+	serv, err := tsb.NewTcpServer("loaclhost:3000")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -28,11 +28,12 @@ func uartExample(s tsb.Server, jack int) {
 		log.Fatal(err)
 	}
 	go func() {
-		PutChan <- "Hello Chan" + strconv.Itoa(jack)
+		PutChan <- []byte("Hello Jack" + strconv.Itoa(jack))
 		time.Sleep(time.Duration(jack) * time.Second)
 	}()
 	for {
-		fmt.Printf("Received from Jack%d: %s\n\r", jack, <-GetChan)
+		msg := <-GetChan
+		fmt.Printf("Received from Jack %d: %s\n\r", jack, msg)
 	}
 }
 

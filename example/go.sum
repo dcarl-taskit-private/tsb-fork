@@ -1,6 +1,6 @@
 github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07 h1:UyzmZLoiDWMRywV4DUYb9Fbt8uiOSooupjTq10vpvnU=
 github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07/go.mod h1:kDXzergiv9cbyO7IOYJZWg1U88JhDg3PB6klq9Hg2pA=
-github.com/traulfs/tsb v0.0.0-20220323173552-3947d3bf91cf h1:GpQ4dzktStLakprFn4hcT8Ocu/pou3Bb0iOAOvJK+0M=
-github.com/traulfs/tsb v0.0.0-20220323173552-3947d3bf91cf/go.mod h1:1bQPZ+t/I0uxSp/0h28os1NEF2J4W6ilCKmBKqvNpBo=
+github.com/traulfs/tsb v0.0.0-20220325114924-56e85200ec58 h1:wit5Ivc+/VrQYRsodYU9izwu0Jfia7C/u8WaUPaAIq4=
+github.com/traulfs/tsb v0.0.0-20220325114924-56e85200ec58/go.mod h1:1bQPZ+t/I0uxSp/0h28os1NEF2J4W6ilCKmBKqvNpBo=
 golang.org/x/sys v0.0.0-20220319134239-a9b59b0215f8 h1:OH54vjqzRWmbJ62fjuhxy7AxFFgoHN0/DPc/UrL8cAs=
 golang.org/x/sys v0.0.0-20220319134239-a9b59b0215f8/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=

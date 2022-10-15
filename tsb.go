@@ -13,8 +13,8 @@ import (
 	"strings"
 )
 
-// Data implements the tsb data structure
-type DataTsb struct {
+// Packet implements the tsb data structure
+type Packet struct {
 	Ch      []byte
 	Typ     []byte
 	Payload []byte
@@ -22,26 +22,23 @@ type DataTsb struct {
 
 // Channel defintions
 const (
-	Buflen int = 1000
+	Buflen int  = 1000
+	MaxTyp byte = 127
 
 	TypUnused     byte = 0x00
 	TypRaw        byte = 0x01
 	TypText       byte = 0x02
+	TypPort       byte = 0x55
+	TypI2c        byte = 0x53
+	TypSpi        byte = 0x54
 	TypEnvelope   byte = 0x05
 	TypBline      byte = 0x11
 	TypBline2     byte = 0x12
 	TypHci        byte = 0x15
 	TypCWB        byte = 0x16
 	TypCoap       byte = 0x21
-	TypCbor       byte = 0x3C
+	TypCbor       byte = 0x31
 	TypCan        byte = 0x41
-	TypModbus     byte = 0x51
-	TypUart       byte = 0x52
-	TypI2c        byte = 0x53
-	TypSpi        byte = 0x54
-	TypPort       byte = 0x55
-	TypLog        byte = 0x56
-	TypError      byte = 0x57
 	TypSenmlJSON  byte = 0x6E
 	TypSensmlJSON byte = 0x6F
 	TypSenmlCbor  byte = 0x70
@@ -49,13 +46,18 @@ const (
 	TypSenmlExi   byte = 0x72
 	TypSensmlExi  byte = 0x73
 	TypInflux     byte = 0x75
-	TypUnknown    byte = 0x7f
+	TypLog        byte = 0x7d
+	TypWarning    byte = 0x7e
+	TypError      byte = 0x7f
 )
 
 // TypLabel maps a string to each type
 var TypLabel = map[byte]string{
 	TypRaw:        "raw",
 	TypText:       "text",
+	TypPort:       "port",
+	TypI2c:        "i2c",
+	TypSpi:        "spi",
 	TypEnvelope:   "envelope",
 	TypBline:      "bline",
 	TypBline2:     "bline2",
@@ -64,11 +66,6 @@ var TypLabel = map[byte]string{
 	TypCoap:       "coap",
 	TypCbor:       "cbor",
 	TypCan:        "can",
-	TypModbus:     "modbus",
-	TypUart:       "uart",
-	TypI2c:        "i2c",
-	TypSpi:        "spi",
-	TypPort:       "port",
 	TypSenmlJSON:  "senml_json",
 	TypSensmlJSON: "sensml_json",
 	TypSenmlCbor:  "senml_cbor",
@@ -76,8 +73,9 @@ var TypLabel = map[byte]string{
 	TypSenmlExi:   "senml_exi",
 	TypSensmlExi:  "sensml_exi",
 	TypInflux:     "influx",
+	TypLog:        "log",
+	TypWarning:    "Warning",
 	TypError:      "error",
-	TypUnknown:    "unknown",
 }
 
 // Verbose is a switch for more debug outputs
@@ -107,7 +105,7 @@ func Channel2Bytes(ch string) []byte {
 }
 
 // TEncode encodes tsb
-func Encode(td DataTsb) []byte {
+func Encode(td Packet) []byte {
 	buf := new(bytes.Buffer)
 	//buf.Write(Channel2Bytes(td.Ch))
 	//buf.WriteByte(GetTyp(td.Typ))
@@ -121,9 +119,9 @@ func Encode(td DataTsb) []byte {
 }
 
 // Decode encodes tsb
-func Decode(packet []byte) (DataTsb, error) {
+func Decode(packet []byte) (Packet, error) {
 	var c, t int
-	td := DataTsb{}
+	td := Packet{}
 	for c = 0; packet[c] > 127; c++ {
 	}
 	td.Ch = packet[0:c]
@@ -180,8 +178,8 @@ func CobsDecode(b []byte) []byte {
 }
 
 // GetData reads tsb data from io.Reader and puts it in a channel
-func GetData(r io.Reader) (chan DataTsb, chan struct{}) {
-	c := make(chan DataTsb, 10)
+func GetData(r io.Reader) (chan Packet, chan struct{}) {
+	c := make(chan Packet, 10)
 	done := make(chan struct{})
 
 	go func() {
@@ -219,8 +217,8 @@ func GetData(r io.Reader) (chan DataTsb, chan struct{}) {
 }
 
 // PutData reads tsb data from a channel and writes it to the io.Writer
-func PutData(w io.Writer) chan DataTsb {
-	c := make(chan DataTsb, 10)
+func PutData(w io.Writer) chan Packet {
+	c := make(chan Packet, 10)
 	go func() {
 		for {
 			td := <-c
