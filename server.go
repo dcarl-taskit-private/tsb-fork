@@ -23,16 +23,8 @@ const (
 	JackSpi16
 )
 
-type PortMode uint16
-
 type jack struct {
-	enabled    bool
-	jackConfig uint16 // 4 Bits PortEnable, 4 Bits jackMode
-	uartConfig uint16 // 8 Bits uartBits, 8 Bits uartBaud
-	portConfig uint16 // 4 Bits Pullup, 4 Bits Direction, 4 Bits InputNotification, 4 Bits Output
-	i2cConfig  uint16 // 8 Bits Address
-	GetChan    [MaxTyp + 1]chan []byte
-	PutChan    [MaxTyp + 1]chan []byte
+	ReadChan [MaxTyp + 1]chan []byte
 }
 
 type Server struct {
@@ -102,14 +94,14 @@ func (s *Server) redirect(td Packet) {
 		log.Printf("Invalid Jacknr %d!\n\r", td.Ch[0])
 		return
 	}
-	if s.jack[td.Ch[0]].GetChan[td.Typ[0]] == nil {
+	if s.jack[td.Ch[0]].ReadChan[td.Typ[0]] == nil {
 		log.Printf("Channel: %d is not initialized!\n\r", td.Ch[0])
 		return
 	}
-	if len(s.jack[td.Ch[0]].GetChan[td.Typ[0]]) >= cap(s.jack[td.Ch[0]].GetChan[td.Typ[0]]) {
+	if len(s.jack[td.Ch[0]].ReadChan[td.Typ[0]]) >= cap(s.jack[td.Ch[0]].ReadChan[td.Typ[0]]) {
 		log.Printf("Channel Overflow! Jack: %d, Typ: %d", td.Ch[0], td.Typ[0])
 	}
-	s.jack[td.Ch[0]].GetChan[td.Typ[0]] <- td.Payload
+	s.jack[td.Ch[0]].ReadChan[td.Typ[0]] <- td.Payload
 }
 
 func (s *Server) SpiInit(jack uint8) (err error) {

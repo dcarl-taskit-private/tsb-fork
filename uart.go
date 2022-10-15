@@ -47,8 +47,8 @@ const (
 
 func (s *Server) UartInit(jack uint8, baud UartBaud, bits UartBits) (get chan []byte, put chan []byte, err error) {
 	checkJack(jack)
-	s.jack[jack].GetChan[TypRaw] = make(chan []byte, 10)
-	get = s.jack[jack].GetChan[TypRaw]
+	s.jack[jack].ReadChan[TypRaw] = make(chan []byte, 10)
+	get = s.jack[jack].ReadChan[TypRaw]
 	put = make(chan []byte, 10)
 	go func(jack uint8) {
 		for {

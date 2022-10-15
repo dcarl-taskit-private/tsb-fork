@@ -6,8 +6,8 @@ import (
 
 func (s *Server) PortInit(jack byte) (get chan []byte, put chan []byte, err error) {
 	checkJack(jack)
-	s.jack[jack].GetChan[TypPort] = make(chan []byte, 10)
-	get = s.jack[jack].GetChan[TypPort]
+	s.jack[jack].ReadChan[TypPort] = make(chan []byte, 10)
+	get = s.jack[jack].ReadChan[TypPort]
 	put = make(chan []byte, 10)
 	go func(jack uint8) {
 		for {
