@@ -80,7 +80,7 @@ func (s *Server) serv() {
 						log.Printf("Invalid Typ %d!\n\r", td.Typ[0])
 						return
 					}
-					if td.Ch[0] > byte(MaxJacks) || td.Ch[0] < 1 {
+					if td.Ch[0] > MaxJacks {
 						log.Printf("Invalid Jacknr %d!\n\r", td.Ch[0])
 						return
 					}
