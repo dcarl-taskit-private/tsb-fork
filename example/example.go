@@ -53,19 +53,9 @@ func uartExample(s tsb.Server, jack byte) {
 }
 
 func portExample(s tsb.Server, jack byte) {
-	GetChan, PutChan, err := s.PortInit(jack)
+	err := s.PortInit(jack)
 	if err != nil {
 		log.Fatal(err)
-	}
-	go func() {
-		for {
-			PutChan <- []byte("Hello Port" + strconv.Itoa(int(jack)))
-			time.Sleep(time.Duration(jack) * time.Second)
-		}
-	}()
-	for {
-		msg := <-GetChan
-		fmt.Printf("Received from Port %d: %s\n\r", jack, msg)
 	}
 }
 

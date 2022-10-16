@@ -63,6 +63,9 @@ func NewTcpServer(address string) (Server, error) {
 	s.tdPutCh = PutData(s.conn)
 	s.tdGetCh, s.done = GetData(s.conn)
 	s.serv()
+	for i := 0; i < int(MaxJacks); i++ {
+		s.I2cInit(byte(i))
+	}
 	return s, nil
 }
 
@@ -77,7 +80,7 @@ func (s *Server) serv() {
 						log.Printf("Invalid Typ %d!\n\r", td.Typ[0])
 						return
 					}
-					if td.Ch[0] > MaxJacks || td.Ch[0] < 1 {
+					if td.Ch[0] > byte(MaxJacks) || td.Ch[0] < 1 {
 						log.Printf("Invalid Jacknr %d!\n\r", td.Ch[0])
 						return
 					}
@@ -102,12 +105,12 @@ func (s *Server) serv() {
 	}()
 }
 
-func (s *Server) SpiInit(jack uint8) (err error) {
-	checkJack(jack)
+func (s *Server) SpiInit(jack byte) (err error) {
+	CheckJack(jack)
 	return nil
 }
 
-func checkJack(jack uint8) {
+func CheckJack(jack byte) {
 	if jack > MaxJacks {
 		log.Fatalf("Illegal Jack nr: %d", jack)
 	}

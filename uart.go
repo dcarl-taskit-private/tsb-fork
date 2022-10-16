@@ -41,8 +41,8 @@ const (
 	UartStopbits2
 )
 
-func (s *Server) UartInit(jack uint8, baud UartBaud, bits UartBits) (err error) {
-	checkJack(jack)
+func (s *Server) UartInit(jack byte, baud UartBaud, bits UartBits) (err error) {
+	CheckJack(jack)
 	s.jack[jack].ReadChan[TypRaw] = make(chan byte, 1024)
 	/*
 		get = s.jack[jack].ReadChan[TypRaw]
@@ -70,13 +70,13 @@ func (s *Server) UartInit(jack uint8, baud UartBaud, bits UartBits) (err error) 
 	return nil
 }
 
-func (s *Server) UartWrite(jack uint8, b []byte) (n int, err error) {
-	td := Packet{Ch: []byte{jack}, Typ: []byte{TypRaw}, Payload: b}
+func (s *Server) UartWrite(jack byte, b []byte) (n int, err error) {
+	td := Packet{Ch: []byte{byte(jack)}, Typ: []byte{TypRaw}, Payload: b}
 	s.tdPutCh <- td
 	return len(b), nil
 }
 
-func (s *Server) UartRead(jack uint8, b []byte) (n int, err error) {
+func (s *Server) UartRead(jack byte, b []byte) (n int, err error) {
 	n = len(s.jack[jack].ReadChan[TypRaw])
 	if n > len(b) {
 		n = len(b)
