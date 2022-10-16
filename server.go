@@ -63,13 +63,13 @@ func NewTcpServer(address string) (Server, error) {
 	s.tdPutCh = PutData(s.conn)
 	s.tdGetCh, s.done = GetData(s.conn)
 	s.serv()
-	for i := 0; i < int(MaxJacks); i++ {
-		s.I2cInit(byte(i))
-	}
 	return s, nil
 }
 
 func (s *Server) serv() {
+	for i := 0; i < int(MaxJacks); i++ {
+		s.jack[i].ReadChan[TypI2c] = make(chan byte, 1024)
+	}
 	fmt.Printf("TSB client connected to tsb server: %s\n", s.address)
 	go func() {
 		for {

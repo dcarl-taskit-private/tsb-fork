@@ -1,8 +1,8 @@
-module github.com/traulfs/tsb/example
+module traulfs/tsb/example
 
 go 1.19
 
-require github.com/traulfs/tsb v0.0.0-20221016103001-cf42412a73c7
+require github.com/traulfs/tsb v0.0.0-20221016121320-6cebd493db64
 
 require (
 	github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07 // indirect
