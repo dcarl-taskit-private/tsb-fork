@@ -1,4 +1,4 @@
-module traulfs/tsb
+module github.com/traulfs/tsb
 
 go 1.19
 
