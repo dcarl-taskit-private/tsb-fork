@@ -13,8 +13,8 @@ import (
 	"strings"
 )
 
-// Packet implements the tsb data structure
-type Packet struct {
+// TsbData implements the tsb data structure
+type TsbData struct {
 	Ch      []byte
 	Typ     []byte
 	Payload []byte
@@ -105,7 +105,7 @@ func Channel2Bytes(ch string) []byte {
 }
 
 // TEncode encodes tsb
-func Encode(td Packet) []byte {
+func Encode(td TsbData) []byte {
 	buf := new(bytes.Buffer)
 	//buf.Write(Channel2Bytes(td.Ch))
 	//buf.WriteByte(GetTyp(td.Typ))
@@ -119,15 +119,16 @@ func Encode(td Packet) []byte {
 }
 
 // Decode encodes tsb
-func Decode(packet []byte) (Packet, error) {
+func Decode(packet []byte) (TsbData, error) {
 	var c, t int
-	td := Packet{}
+	td := TsbData{}
 	for c = 0; packet[c] > 127; c++ {
 	}
+	c++
 	td.Ch = packet[0:c]
-	for t++; packet[t] > 127; t++ {
+	for t = c; packet[t] > 127; t++ {
 	}
-	td.Typ = packet[c:t]
+	td.Typ = packet[c : t+1]
 	td.Payload = packet[t : len(packet)-2]
 	crc := checkSum(packet[0 : len(packet)-2])
 	if byte(crc>>8) != packet[len(packet)-1] || byte(crc&0xff) != packet[len(packet)-2] {
@@ -178,8 +179,8 @@ func CobsDecode(b []byte) []byte {
 }
 
 // GetData reads tsb data from io.Reader and puts it in a channel
-func GetData(r io.Reader) (chan Packet, chan struct{}) {
-	c := make(chan Packet, 10)
+func GetData(r io.Reader) (chan TsbData, chan struct{}) {
+	c := make(chan TsbData, 10)
 	done := make(chan struct{})
 
 	go func() {
@@ -219,8 +220,8 @@ func GetData(r io.Reader) (chan Packet, chan struct{}) {
 }
 
 // PutData reads tsb data from a channel and writes it to the io.Writer
-func PutData(w io.Writer) chan Packet {
-	c := make(chan Packet, 10)
+func PutData(w io.Writer) chan TsbData {
+	c := make(chan TsbData, 10)
 	go func() {
 		for {
 			td := <-c

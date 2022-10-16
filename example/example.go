@@ -32,24 +32,24 @@ func uartExample(s tsb.Server, jack byte) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	go func() {
+	go func(jack byte) {
 		for {
-			_, err := s.UartWrite(jack, []byte("Hello Jack"+strconv.Itoa(int(jack))))
+			_, err := s.UartWrite(jack, []byte("Hello Jack"+strconv.Itoa(int(jack))+"\n"))
 			if err != nil {
 				log.Fatal(err)
 			}
 			time.Sleep(time.Duration(time.Second))
 		}
-	}()
-	for {
+	}(jack)
+	go func(jack byte) {
 		n, err := s.UartRead(jack, buf)
 		if err != nil {
 			log.Fatal(err)
 		}
 		if n > 0 {
-			fmt.Printf("Received from Jack %d: %s\n\r", jack, buf)
+			fmt.Printf("Received from Jack %d: %s\n", jack, buf)
 		}
-	}
+	}(jack)
 }
 
 func portExample(s tsb.Server, jack byte) {

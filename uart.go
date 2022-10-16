@@ -43,7 +43,7 @@ const (
 
 func (s *Server) UartInit(jack byte, baud UartBaud, bits UartBits) (err error) {
 	CheckJack(jack)
-	s.jack[jack].ReadChan[TypRaw] = make(chan byte, 1024)
+	//s.jack[jack].ReadChan[TypRaw] = make(chan byte, 1024)
 	/*
 		get = s.jack[jack].ReadChan[TypRaw]
 		put = make(chan []byte, 10)
@@ -52,7 +52,7 @@ func (s *Server) UartInit(jack byte, baud UartBaud, bits UartBits) (err error) {
 				select {
 				case msg := <-put:
 					{
-						td := Packet{Ch: []byte{jack}, Typ: []byte{TypRaw}, Payload: msg}
+						td := TsbData{Ch: []byte{jack}, Typ: []byte{TypRaw}, Payload: msg}
 						s.tdPutCh <- td
 						//s.redirect((td))
 					}
@@ -62,7 +62,7 @@ func (s *Server) UartInit(jack byte, baud UartBaud, bits UartBits) (err error) {
 						return
 					}
 				}
-				td := Packet{Ch: []byte{jack}, Typ: []byte{TypRaw}, Payload: <-put}
+				td := TsbData{Ch: []byte{jack}, Typ: []byte{TypRaw}, Payload: <-put}
 				s.tdPutCh <- td
 			}
 		}(jack)
@@ -71,7 +71,7 @@ func (s *Server) UartInit(jack byte, baud UartBaud, bits UartBits) (err error) {
 }
 
 func (s *Server) UartWrite(jack byte, b []byte) (n int, err error) {
-	td := Packet{Ch: []byte{byte(jack)}, Typ: []byte{TypRaw}, Payload: b}
+	td := TsbData{Ch: []byte{byte(jack)}, Typ: []byte{TypRaw}, Payload: b}
 	s.tdPutCh <- td
 	return len(b), nil
 }

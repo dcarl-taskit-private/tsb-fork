@@ -30,11 +30,11 @@ type jack struct {
 type Server struct {
 	address string
 	typ     string
-	jack    [MaxJacks]jack
+	jack    [MaxJacks + 1]jack
 	conn    net.Conn
 	sport   *serial.Port
-	tdPutCh chan Packet
-	tdGetCh chan Packet
+	tdPutCh chan TsbData
+	tdGetCh chan TsbData
 	done    chan struct{}
 }
 
@@ -67,8 +67,10 @@ func NewTcpServer(address string) (Server, error) {
 }
 
 func (s *Server) serv() {
-	for i := 0; i < int(MaxJacks); i++ {
+	for i := 0; i <= int(MaxJacks); i++ {
 		s.jack[i].ReadChan[TypI2c] = make(chan byte, 1024)
+		s.jack[i].ReadChan[TypPort] = make(chan byte, 1024)
+		s.jack[i].ReadChan[TypRaw] = make(chan byte, 1024)
 	}
 	fmt.Printf("TSB client connected to tsb server: %s\n", s.address)
 	go func() {
@@ -76,20 +78,22 @@ func (s *Server) serv() {
 			select {
 			case td := <-s.tdGetCh:
 				{
+					//fmt.Printf("td: ch: %d, typ: %d, %s\n", td.Ch[0], td.Typ[0], td.Payload)
 					if td.Typ[0] > MaxTyp {
 						log.Printf("Invalid Typ %d!\n\r", td.Typ[0])
-						return
+						break
 					}
 					if td.Ch[0] > MaxJacks {
 						log.Printf("Invalid Jacknr %d!\n\r", td.Ch[0])
-						return
+						break
 					}
 					if s.jack[td.Ch[0]].ReadChan[td.Typ[0]] == nil {
 						log.Printf("Channel: %d is not initialized!\n\r", td.Ch[0])
-						return
+						break
 					}
-					if len(s.jack[td.Ch[0]].ReadChan[td.Typ[0]]) >= cap(s.jack[td.Ch[0]].ReadChan[td.Typ[0]]) {
-						log.Printf("Channel Overflow! Jack: %d, Typ: %d", td.Ch[0], td.Typ[0])
+					if len(s.jack[td.Ch[0]].ReadChan[td.Typ[0]]) > 800 {
+						log.Printf("Read Channel Overflow! Jack: %d, Typ: %d, cap: %d, len: %d", td.Ch[0], td.Typ[0],
+							cap(s.jack[td.Ch[0]].ReadChan[td.Typ[0]]), len(s.jack[td.Ch[0]].ReadChan[td.Typ[0]]))
 					}
 					for i := range td.Payload {
 						s.jack[td.Ch[0]].ReadChan[td.Typ[0]] <- td.Payload[i]
