@@ -67,7 +67,7 @@ func NewTcpServer(address string) (Server, error) {
 }
 
 func (s *Server) serv() {
-	fmt.Printf("TSB client connected to tsb server: %s", s.address)
+	fmt.Printf("TSB client connected to tsb server: %s\n", s.address)
 	go func() {
 		for {
 			select {
