@@ -11,7 +11,7 @@ import (
 
 func main() {
 	//serv, err := tsb.NewSerialServer("/dev/ttyUSB0")
-	serv, err := tsb.NewTcpServer("localhost:3001")
+	serv, err := tsb.NewTcpServer("localhost:3000")
 	if err != nil {
 		log.Fatal(err)
 	}
