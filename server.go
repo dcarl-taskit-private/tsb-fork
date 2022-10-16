@@ -24,7 +24,7 @@ const (
 )
 
 type jack struct {
-	ReadChan [MaxTyp + 1]chan []byte
+	ReadChan [MaxTyp + 1]chan byte
 }
 
 type Server struct {
@@ -73,7 +73,24 @@ func (s *Server) serv() {
 			select {
 			case td := <-s.tdGetCh:
 				{
-					s.redirect((td))
+					if td.Typ[0] > MaxTyp {
+						log.Printf("Invalid Typ %d!\n\r", td.Typ[0])
+						return
+					}
+					if td.Ch[0] > MaxJacks || td.Ch[0] < 1 {
+						log.Printf("Invalid Jacknr %d!\n\r", td.Ch[0])
+						return
+					}
+					if s.jack[td.Ch[0]].ReadChan[td.Typ[0]] == nil {
+						log.Printf("Channel: %d is not initialized!\n\r", td.Ch[0])
+						return
+					}
+					if len(s.jack[td.Ch[0]].ReadChan[td.Typ[0]]) >= cap(s.jack[td.Ch[0]].ReadChan[td.Typ[0]]) {
+						log.Printf("Channel Overflow! Jack: %d, Typ: %d", td.Ch[0], td.Typ[0])
+					}
+					for i := range td.Payload {
+						s.jack[td.Ch[0]].ReadChan[td.Typ[0]] <- td.Payload[i]
+					}
 				}
 			case <-s.done:
 				{
@@ -83,25 +100,6 @@ func (s *Server) serv() {
 			}
 		}
 	}()
-}
-
-func (s *Server) redirect(td Packet) {
-	if td.Typ[0] > MaxTyp {
-		log.Printf("Invalid Typ %d!\n\r", td.Typ[0])
-		return
-	}
-	if td.Ch[0] > MaxJacks || td.Ch[0] < 1 {
-		log.Printf("Invalid Jacknr %d!\n\r", td.Ch[0])
-		return
-	}
-	if s.jack[td.Ch[0]].ReadChan[td.Typ[0]] == nil {
-		log.Printf("Channel: %d is not initialized!\n\r", td.Ch[0])
-		return
-	}
-	if len(s.jack[td.Ch[0]].ReadChan[td.Typ[0]]) >= cap(s.jack[td.Ch[0]].ReadChan[td.Typ[0]]) {
-		log.Printf("Channel Overflow! Jack: %d, Typ: %d", td.Ch[0], td.Typ[0])
-	}
-	s.jack[td.Ch[0]].ReadChan[td.Typ[0]] <- td.Payload
 }
 
 func (s *Server) SpiInit(jack uint8) (err error) {

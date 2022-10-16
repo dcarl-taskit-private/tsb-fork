@@ -27,19 +27,28 @@ func main() {
 }
 
 func uartExample(s tsb.Server, jack byte) {
-	GetChan, PutChan, err := s.UartInit(jack, tsb.UartBaud115200, tsb.UartData8&tsb.UartParityNone&tsb.UartStopbits1)
+	var buf []byte = make([]byte, 256)
+	err := s.UartInit(jack, tsb.UartBaud115200, tsb.UartData8&tsb.UartParityNone&tsb.UartStopbits1)
 	if err != nil {
 		log.Fatal(err)
 	}
 	go func() {
 		for {
-			PutChan <- []byte("Hello Jack" + strconv.Itoa(int(jack)))
-			time.Sleep(time.Duration(jack) * time.Second)
+			_, err := s.UartWrite(jack, []byte("Hello Jack"+strconv.Itoa(int(jack))))
+			if err != nil {
+				log.Fatal(err)
+			}
+			time.Sleep(time.Duration(time.Second))
 		}
 	}()
 	for {
-		msg := <-GetChan
-		fmt.Printf("Received from Jack %d: %s\n\r", jack, msg)
+		n, err := s.UartRead(jack, buf)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if n > 0 {
+			fmt.Printf("Received from Jack %d: %s\n\r", jack, buf)
+		}
 	}
 }
 

@@ -1,9 +1,5 @@
 package tsb
 
-import (
-	"fmt"
-)
-
 type UartBaud uint16
 
 const (
@@ -45,29 +41,48 @@ const (
 	UartStopbits2
 )
 
-func (s *Server) UartInit(jack uint8, baud UartBaud, bits UartBits) (get chan []byte, put chan []byte, err error) {
+func (s *Server) UartInit(jack uint8, baud UartBaud, bits UartBits) (err error) {
 	checkJack(jack)
-	s.jack[jack].ReadChan[TypRaw] = make(chan []byte, 10)
-	get = s.jack[jack].ReadChan[TypRaw]
-	put = make(chan []byte, 10)
-	go func(jack uint8) {
-		for {
-			select {
-			case msg := <-put:
-				{
-					td := Packet{Ch: []byte{jack}, Typ: []byte{TypRaw}, Payload: msg}
-					s.tdPutCh <- td
-					//s.redirect((td))
+	s.jack[jack].ReadChan[TypRaw] = make(chan byte, 1024)
+	/*
+		get = s.jack[jack].ReadChan[TypRaw]
+		put = make(chan []byte, 10)
+		go func(jack uint8) {
+			for {
+				select {
+				case msg := <-put:
+					{
+						td := Packet{Ch: []byte{jack}, Typ: []byte{TypRaw}, Payload: msg}
+						s.tdPutCh <- td
+						//s.redirect((td))
+					}
+				case <-s.done:
+					{
+						fmt.Printf("Uart %d closed!\n", jack)
+						return
+					}
 				}
-			case <-s.done:
-				{
-					fmt.Printf("Uart %d closed!\n", jack)
-					return
-				}
+				td := Packet{Ch: []byte{jack}, Typ: []byte{TypRaw}, Payload: <-put}
+				s.tdPutCh <- td
 			}
-			td := Packet{Ch: []byte{jack}, Typ: []byte{TypRaw}, Payload: <-put}
-			s.tdPutCh <- td
-		}
-	}(jack)
-	return get, put, nil
+		}(jack)
+	*/
+	return nil
+}
+
+func (s *Server) UartWrite(jack uint8, b []byte) (n int, err error) {
+	td := Packet{Ch: []byte{jack}, Typ: []byte{TypRaw}, Payload: b}
+	s.tdPutCh <- td
+	return len(b), nil
+}
+
+func (s *Server) UartRead(jack uint8, b []byte) (n int, err error) {
+	n = len(s.jack[jack].ReadChan[TypRaw])
+	if n > len(b) {
+		n = len(b)
+	}
+	for i := 0; i < n; i++ {
+		b[i] = <-s.jack[jack].ReadChan[TypRaw]
+	}
+	return n, nil
 }
