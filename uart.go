@@ -3,7 +3,7 @@ package tsb
 type UartBaud uint16
 
 const (
-	UartBaudAuto UartBaud = iota
+	UartBaudAuto uint16 = iota
 	UartBaud1200
 	UartBaud2400
 	UartBaud4800
@@ -23,7 +23,7 @@ const (
 type UartBits uint16
 
 const (
-	UartData8 UartBits = iota << 12
+	UartData8 uint16 = iota << 12
 	UartData9
 	UartData7
 	UartData6
@@ -31,42 +31,19 @@ const (
 )
 
 const (
-	UartParityNone UartBits = iota << 10
+	UartParityNone uint16 = iota << 10
 	UartParityEven
 	UartParityOdd
 )
 
 const (
-	UartStopbits1 UartBits = iota << 8
+	UartStopbits1 uint16 = iota << 8
 	UartStopbits2
 )
 
-func (s *Server) UartInit(jack byte, baud UartBaud, bits UartBits) (err error) {
+func (s *Server) UartInit(jack byte, baud uint16, bits uint16) (err error) {
 	CheckJack(jack)
-	//s.jack[jack].ReadChan[TypRaw] = make(chan byte, 1024)
-	/*
-		get = s.jack[jack].ReadChan[TypRaw]
-		put = make(chan []byte, 10)
-		go func(jack uint8) {
-			for {
-				select {
-				case msg := <-put:
-					{
-						td := TsbData{Ch: []byte{jack}, Typ: []byte{TypRaw}, Payload: msg}
-						s.tdPutCh <- td
-						//s.redirect((td))
-					}
-				case <-s.done:
-					{
-						fmt.Printf("Uart %d closed!\n", jack)
-						return
-					}
-				}
-				td := TsbData{Ch: []byte{jack}, Typ: []byte{TypRaw}, Payload: <-put}
-				s.tdPutCh <- td
-			}
-		}(jack)
-	*/
+	s.I2cWrite(jack, 130, []byte{byte(baud), byte(baud >> 8), byte(bits), byte(bits >> 8)})
 	return nil
 }
 
@@ -77,11 +54,12 @@ func (s *Server) UartWrite(jack byte, b []byte) (n int, err error) {
 }
 
 func (s *Server) UartRead(jack byte, b []byte) (n int, err error) {
-	n = len(s.jack[jack].ReadChan[TypRaw])
+	b[0] = <-s.jack[jack].ReadChan[TypRaw]
+	n = len(s.jack[jack].ReadChan[TypRaw]) + 1
 	if n > len(b) {
 		n = len(b)
 	}
-	for i := 0; i < n; i++ {
+	for i := 1; i < n; i++ {
 		b[i] = <-s.jack[jack].ReadChan[TypRaw]
 	}
 	return n, nil
