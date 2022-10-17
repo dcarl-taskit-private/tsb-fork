@@ -126,7 +126,8 @@ func Decode(packet []byte) (TsbData, error) {
 	td.Ch = packet[0:c]
 	for t = c; packet[t] > 127; t++ {
 	}
-	td.Typ = packet[c : t+1]
+	t++
+	td.Typ = packet[c:t]
 	td.Payload = packet[t : len(packet)-2]
 	crc := checkSum(packet[0 : len(packet)-2])
 	if byte(crc>>8) != packet[len(packet)-1] || byte(crc&0xff) != packet[len(packet)-2] {
