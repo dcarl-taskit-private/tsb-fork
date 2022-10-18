@@ -105,8 +105,6 @@ func Channel2Bytes(ch string) []byte {
 // TEncode encodes tsb
 func Encode(td TsbData) []byte {
 	buf := new(bytes.Buffer)
-	//buf.Write(Channel2Bytes(td.Ch))
-	//buf.WriteByte(GetTyp(td.Typ))
 	buf.Write(td.Ch)
 	buf.Write(td.Typ)
 	buf.Write(td.Payload)
@@ -246,33 +244,3 @@ func GetTypList() string {
 	}
 	return s
 }
-
-/*
-// GetTyp return a type from his typename
-func GetTyp(typename string) byte {
-	for i, name := range TypLabel {
-		if typename == name {
-			return i
-		}
-	}
-	return TypError
-}
-
-// ChannelSplit gives the first root as int and remains the following route
-func ChannelSplit(ch *string) (n int) {
-	chs := Channel2Bytes(*ch)
-	n = int(chs[0])
-	if n > 127 {
-		n -= 128
-		var i int
-		*ch = ""
-		for i = 1; chs[i] > 127 && len(chs) > i; i++ {
-			*ch += fmt.Sprintf("%d.", chs[i]-128)
-		}
-		*ch += fmt.Sprintf("%d", chs[i])
-	} else {
-		*ch = "0"
-	}
-	return n
-}
-*/

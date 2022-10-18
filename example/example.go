@@ -61,10 +61,28 @@ func portExample(s tsb.Server, jack byte) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	// Configure Pads 0 and 1 as Input with Pullup and Notification
+	s.PortPutc(jack, tsb.PortcharClearDirection|tsb.PortPad0|tsb.PortPad1)  // PAD0 and PAD1 as input
+	s.PortPutc(jack, tsb.PortcharSetOutput|tsb.PortPad0|tsb.PortPad1)       // PAD0 and PAD1 Output High for Pullup
+	s.PortPutc(jack, tsb.PortcharSetPullEnable|tsb.PortPad0|tsb.PortPad1)   // PAD0 and PAD1 with Pullup
+	s.PortPutc(jack, tsb.PortcharSetNotification|tsb.PortPad0|tsb.PortPad1) // PAD0 and PAD1 with Notification
+
+	// Configure Pads 2 and 3 as Output
+	s.PortPutc(jack, tsb.PortcharSetDirection|tsb.PortPad2|tsb.PortPad3) // PAD2 and PAD3 as output
+	s.PortPutc(jack, tsb.PortcharSetOutput|tsb.PortPad2)                 // PAD2 High
+	s.PortPutc(jack, tsb.PortcharSetOutput|tsb.PortPad3)                 // PAD3 Low
+
 	go func(jack byte) {
 		for {
-			s.PortPutc(jack, 0x31)
+			s.PortPutc(jack, tsb.PortcharToggleOutput|tsb.PortPad2)
+			s.PortPutc(jack, tsb.PortcharToggleOutput|tsb.PortPad3)
 			time.Sleep(time.Duration(time.Second))
+		}
+	}(jack)
+	go func(jack byte) {
+		for {
+			c := s.PortGetc(jack)
+			fmt.Printf("Portchar received from Jack %d: %x\n", jack, c)
 		}
 	}(jack)
 }

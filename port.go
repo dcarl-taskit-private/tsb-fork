@@ -1,9 +1,41 @@
 package tsb
 
+const (
+	PortPad0    byte = 1
+	PortPad1    byte = 2
+	PortPad2    byte = 4
+	PortPad3    byte = 8
+	PortAllPads byte = 15
+)
+
+const (
+	PortcharReadWrite byte = iota << 4
+	PortcharSetOutput
+	PortcharClearOutput
+	PortcharToggleOutput
+	PortcharSetDirection
+	PortcharClearDirection
+	PortcharSetPullEnable
+	PortcharClearPullEnable
+	PortcharSetNotification
+	PortcharClearNotification
+	PortcharNotification
+	PortcharFree1
+	PortcharFree2
+	PortcharFree3
+	PortcharRead
+	PortcharError
+)
+
 func (s *Server) PortInit(jack byte) (err error) {
 	CheckJack(jack)
 	s.jack[jack].ReadChan[TypPort] = make(chan byte, 1024)
 	return nil
+}
+
+func (s *Server) PortGetc(jack byte) (c byte) {
+	c = <-s.jack[jack].ReadChan[TypPort]
+	return c
 }
 
 func (s *Server) PortPutc(jack byte, c byte) (err error) {
