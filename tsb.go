@@ -177,7 +177,7 @@ func CobsDecode(b []byte) []byte {
 
 // GetData reads tsb data from io.Reader and puts it in a channel
 func GetData(r io.Reader) (chan TsbData, chan struct{}) {
-	c := make(chan TsbData, 10)
+	c := make(chan TsbData, 100)
 	done := make(chan struct{})
 
 	go func() {

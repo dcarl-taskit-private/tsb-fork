@@ -70,7 +70,7 @@ func portExample(s tsb.Server, jack byte) {
 	// Configure Pads 2 and 3 as Output
 	s.PortPutc(jack, tsb.PortcharSetDirection|tsb.PortPad2|tsb.PortPad3) // PAD2 and PAD3 as output
 	s.PortPutc(jack, tsb.PortcharSetOutput|tsb.PortPad2)                 // PAD2 High
-	s.PortPutc(jack, tsb.PortcharSetOutput|tsb.PortPad3)                 // PAD3 Low
+	s.PortPutc(jack, tsb.PortcharClearOutput|tsb.PortPad3)               // PAD3 Low
 
 	go func(jack byte) {
 		for {
