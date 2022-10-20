@@ -117,19 +117,28 @@ func Encode(td TsbData) []byte {
 // Decode encodes tsb
 func Decode(packet []byte) (TsbData, error) {
 	var c, t int
+	l := len(packet)
 	td := TsbData{}
-	for c = 0; packet[c] > 127; c++ {
+	if l < 4 {
+		return td, fmt.Errorf("invalid tsb packet length (%d)", l)
 	}
-	c++
+	if packet[0] > 127 {
+		c = 2
+	} else {
+		c = 1
+	}
 	td.Ch = packet[0:c]
-	for t = c; packet[t] > 127; t++ {
+	if packet[c] > 127 {
+		t = c + 2
+	} else {
+		t = c + 1
 	}
-	t++
 	td.Typ = packet[c:t]
 	td.Payload = packet[t : len(packet)-2]
 	crc := checkSum(packet[0 : len(packet)-2])
 	if byte(crc>>8) != packet[len(packet)-1] || byte(crc&0xff) != packet[len(packet)-2] {
-		fmt.Printf("TSB-Read:\tCrc error! packet= % X, crc=% X\n", packet, crc)
+		//fmt.Printf("TSB-Read:\tCrc error! packet= % X, crc=% X\n", packet, crc)
+		return td, fmt.Errorf("tsb crc error, packet= % X, crc=% X", packet, crc)
 	} else {
 		if Verbose {
 			fmt.Printf("TSB-Read:  Ch: 0x%X Typ: 0x%X Payload 0x% X\n", td.Ch, td.Typ, td.Payload)
@@ -197,15 +206,11 @@ func GetData(r io.Reader) (chan TsbData, chan struct{}) {
 				cb.WriteByte(buf[p])
 				if buf[p] == 0x00 {
 					packet := CobsDecode(cb.Bytes())
-					if len(packet) >= 4 {
-						td, err := Decode(packet)
-						if err != nil {
-							log.Print(err)
-						} else {
-							c <- td
-						}
+					td, err := Decode(packet)
+					if err != nil {
+						log.Print(err)
 					} else {
-						fmt.Printf("TSB-Read: Empty or wrong packet! buf= % X\n", cb.Bytes())
+						c <- td
 					}
 					cb.Reset()
 				}
