@@ -168,12 +168,12 @@ func CobsEncode(p []byte) []byte {
 // CobsDecode implements the cobs algorithmus
 func CobsDecode(b []byte) ([]byte, error) {
 	if len(b) == 0 {
-		return nil, fmt.Errorf("Empty packet")
+		return nil, fmt.Errorf("empty packet")
 	}
 	buf := new(bytes.Buffer)
 	for n := b[0]; n > 0; n = b[0] {
 		if int(n) >= len(b) {
-			return nil, fmt.Errorf("Cobs length byte (%d) is bigger than remaining packet length(%d", n, len(b))
+			return nil, fmt.Errorf("cobs length byte (%d) is bigger than remaining packet length (%d)", n, len(b))
 		}
 		buf.Write(b[1:n])
 		b = b[n:]
