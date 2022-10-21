@@ -166,14 +166,14 @@ func CobsEncode(p []byte) []byte {
 }
 
 // CobsDecode implements the cobs algorithmus
-func CobsDecode(b []byte) []byte {
+func CobsDecode(b []byte) ([]byte, error) {
 	if len(b) == 0 {
-		return nil
+		return nil, fmt.Errorf("Empty packet")
 	}
 	buf := new(bytes.Buffer)
 	for n := b[0]; n > 0; n = b[0] {
 		if int(n) >= len(b) {
-			return nil
+			return nil, fmt.Errorf("Cobs length byte (%d) is bigger than remaining packet length(%d", n, len(b))
 		}
 		buf.Write(b[1:n])
 		b = b[n:]
@@ -181,7 +181,7 @@ func CobsDecode(b []byte) []byte {
 			buf.WriteByte(0)
 		}
 	}
-	return buf.Bytes()
+	return buf.Bytes(), nil
 }
 
 // GetData reads tsb data from io.Reader and puts it in a channel
@@ -205,12 +205,16 @@ func GetData(r io.Reader) (chan TsbData, chan struct{}) {
 			for p := 0; p < n; p++ {
 				cb.WriteByte(buf[p])
 				if buf[p] == 0x00 {
-					packet := CobsDecode(cb.Bytes())
-					td, err := Decode(packet)
+					packet, err := CobsDecode(cb.Bytes())
 					if err != nil {
 						log.Print(err)
 					} else {
-						c <- td
+						td, err := Decode(packet)
+						if err != nil {
+							log.Print(err)
+						} else {
+							c <- td
+						}
 					}
 					cb.Reset()
 				}
