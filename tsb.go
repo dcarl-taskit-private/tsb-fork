@@ -208,10 +208,13 @@ func GetData(r io.Reader) (chan TsbData, chan struct{}) {
 					packet, err := CobsDecode(cb.Bytes())
 					if err != nil {
 						log.Print(err)
+						fmt.Printf("\ttsb.CobsDecode packet: %x\n", cb.Bytes())
 					} else {
 						td, err := Decode(packet)
 						if err != nil {
 							log.Print(err)
+							fmt.Printf("\ttsb.CobsDecode packet: %x\n", cb.Bytes())
+							fmt.Printf("\ttsb.Decode packet: %x\n", packet)
 						} else {
 							c <- td
 						}
