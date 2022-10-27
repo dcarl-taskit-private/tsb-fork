@@ -5,7 +5,7 @@ import (
 	"log"
 	"net"
 
-	"github.com/tarm/serial"
+	"github.com/traulfs/serial"
 )
 
 const (
