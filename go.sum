@@ -1,6 +1,4 @@
 github.com/traulfs/serial v0.0.0-20221031100820-7163c15ebf3c h1:7zMNV8mX0Yx2JnSf9rlkDTyFkXmHQJTB1+VRIBzXv+g=
 github.com/traulfs/serial v0.0.0-20221031100820-7163c15ebf3c/go.mod h1:unOKybdiE4varJ1lfpwCkH19FZUa1LnqQefn/K3Ri1w=
-github.com/traulfs/tsb v0.0.0-20221027144501-dd3ae1e79b05 h1:DYBlICVnWVU1D3zPhhHZqugYIxyH2A43VJ58RiYuZs0=
-github.com/traulfs/tsb v0.0.0-20221027144501-dd3ae1e79b05/go.mod h1:N0uAuA6SFHlFx1WP/exRhmKi8n5zgXX8Vgc0O2kORqg=
 golang.org/x/sys v0.1.0 h1:kunALQeHf1/185U1i0GOB/fy1IPRDDpuoOOqRReG57U=
 golang.org/x/sys v0.1.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
