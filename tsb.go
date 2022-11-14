@@ -22,8 +22,9 @@ type TsbData struct {
 
 // Channel defintions
 const (
-	Buflen int  = 1000
-	MaxTyp byte = 127
+	Buflen     int  = 1000
+	MaxTyp     byte = 127
+	MaxPayload int  = 250
 
 	TypUnused     byte = 0x00
 	TypRaw        byte = 0x01
