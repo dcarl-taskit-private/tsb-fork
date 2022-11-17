@@ -80,15 +80,15 @@ func (s *Server) serv() {
 				{
 					//fmt.Printf("td: ch: %d, typ: %d, %s\n", td.Ch[0], td.Typ[0], td.Payload)
 					if td.Typ[0] > MaxTyp {
-						log.Printf("Invalid Typ %d!\n\r", td.Typ[0])
+						//log.Printf("Invalid Typ %d!\n\r", td.Typ[0])
 						break
 					}
 					if td.Ch[0] > MaxJacks {
-						log.Printf("Invalid Jacknr %d!\n\r", td.Ch[0])
+						//log.Printf("Invalid Jacknr %d!\n\r", td.Ch[0])
 						break
 					}
 					if s.jack[td.Ch[0]].ReadChan[td.Typ[0]] == nil {
-						log.Printf("Channel: %d is not initialized!\n\r", td.Ch[0])
+						//log.Printf("Channel: %d is not initialized!\n\r", td.Ch[0])
 						break
 					}
 					if len(s.jack[td.Ch[0]].ReadChan[td.Typ[0]]) > 800 {
