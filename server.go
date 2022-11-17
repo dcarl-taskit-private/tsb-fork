@@ -73,12 +73,12 @@ func (s *Server) serv() {
 		s.jack[i].ReadChan[TypRaw] = make(chan byte, 1024)
 	}
 	fmt.Printf("TSB client connected to tsb server: %s\n", s.address)
-	go func() {
+	go func(s *Server) {
 		for {
 			select {
 			case td := <-s.tdGetCh:
 				{
-					//fmt.Printf("td: ch: %d, typ: %d, %s\n", td.Ch[0], td.Typ[0], td.Payload)
+					//fmt.Printf("td: ch: %d, typ: %s, %x\n", td.Ch[0], TypLabel[td.Typ[0]], td.Payload)
 					if td.Typ[0] > MaxTyp {
 						//log.Printf("Invalid Typ %d!\n\r", td.Typ[0])
 						break
@@ -88,7 +88,7 @@ func (s *Server) serv() {
 						break
 					}
 					if s.jack[td.Ch[0]].ReadChan[td.Typ[0]] == nil {
-						//log.Printf("Channel: %d is not initialized!\n\r", td.Ch[0])
+						log.Printf("Channel: %d is not initialized!\n\r", td.Ch[0])
 						break
 					}
 					if len(s.jack[td.Ch[0]].ReadChan[td.Typ[0]]) > 800 {
@@ -97,6 +97,7 @@ func (s *Server) serv() {
 					}
 					for i := range td.Payload {
 						s.jack[td.Ch[0]].ReadChan[td.Typ[0]] <- td.Payload[i]
+						//	fmt.Printf("%x\n", td.Payload[i])
 					}
 				}
 			case <-s.done:
@@ -106,7 +107,7 @@ func (s *Server) serv() {
 				}
 			}
 		}
-	}()
+	}(s)
 }
 
 func (s *Server) SpiInit(jack byte) (err error) {

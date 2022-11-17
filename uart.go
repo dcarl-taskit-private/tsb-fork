@@ -43,7 +43,7 @@ const (
 
 func (s *Server) UartInit(jack byte, baud uint16, bits uint16) (err error) {
 	CheckJack(jack)
-	s.I2cWrite(jack, 130, []byte{byte(baud), byte(baud >> 8), byte(bits), byte(bits >> 8)})
+	//s.I2cWrite(jack, 130, []byte{byte(baud), byte(baud >> 8), byte(bits), byte(bits >> 8)})
 	return nil
 }
 

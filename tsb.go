@@ -53,6 +53,7 @@ const (
 
 // TypLabel maps a string to each type
 var TypLabel = map[byte]string{
+	TypUnused:     "unused",
 	TypRaw:        "raw",
 	TypText:       "text",
 	TypPort:       "port",

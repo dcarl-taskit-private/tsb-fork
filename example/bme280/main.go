@@ -8,6 +8,8 @@ import (
 	"github.com/traulfs/tsb"
 )
 
+const MyJack byte = 5
+
 func main() {
 	//serv, err := tsb.NewSerialServer("/dev/ttyUSB0")
 	serv, err := tsb.NewTcpServer("localhost:3001")
@@ -16,15 +18,17 @@ func main() {
 		log.Fatal(err)
 	}
 	temp := make([]byte, 3)
-	serv.I2cInit(1)
+	serv.I2cInit(MyJack)
 	fmt.Printf("BME280 Example\n")
-	for i := 0; i < 10; i++ {
-		serv.I2cWrite(1, 0xF4, []byte{0x03})
-		_, err = serv.I2cRead(1, 0xFA, temp)
+	serv.I2cSetAdr(MyJack, 0x76)
+	serv.I2cWrite(MyJack, []byte{0xF4, 0x03})
+	for i := 1; i <= 10; i++ {
+		serv.I2cWrite(MyJack, []byte{0xFA})
+		_, err = serv.I2cRead(MyJack, temp)
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("%d: Temp: %v\n", i, temp)
+		fmt.Printf("%2d: Temp: %v\n", i, temp)
 		time.Sleep(time.Second)
 	}
 }
