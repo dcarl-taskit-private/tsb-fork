@@ -32,6 +32,7 @@ const (
 	TypPort       byte = 0x03
 	TypI2c        byte = 0x04
 	TypSpi        byte = 0x05
+	TypM2go       byte = 0x08
 	TypBline      byte = 0x11
 	TypBline2     byte = 0x12
 	TypHci        byte = 0x15
@@ -59,6 +60,7 @@ var TypLabel = map[byte]string{
 	TypPort:       "port",
 	TypI2c:        "i2c",
 	TypSpi:        "spi",
+	TypM2go:       "m2go",
 	TypBline:      "bline",
 	TypBline2:     "bline2",
 	TypHci:        "hci",
