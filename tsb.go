@@ -83,9 +83,9 @@ var TypLabel = map[byte]string{
 }
 
 // Verbose is a switch for more debug outputs
-var Verbose bool
+var Verbose bool = false
 
-var ErrorVerbose bool
+var ErrorVerbose bool = false
 
 // Channel2Bytes converts a channel string in a []byte
 // Example: "3.4.5" -> 0x83,0x84,0x05
