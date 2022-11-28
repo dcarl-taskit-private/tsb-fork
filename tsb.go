@@ -196,10 +196,11 @@ func GetData(r io.Reader) (chan TsbData, chan struct{}) {
 	done := make(chan struct{})
 
 	go func() {
-		buf := make([]byte, 1000000)
-		cb := new(bytes.Buffer)
+		var i, k int
+		wbuf := []byte{}
 		for {
-			n, err := r.Read(buf)
+			rbuf := make([]byte, 10000)
+			n, err := r.Read(rbuf)
 			if err != nil {
 				/*
 					if err != io.EOF {
@@ -208,26 +209,29 @@ func GetData(r io.Reader) (chan TsbData, chan struct{}) {
 				*/
 				break
 			}
-			for p := 0; p < n; p++ {
-				cb.WriteByte(buf[p])
-				if buf[p] == 0x00 {
-					packet, err := CobsDecode(cb.Bytes())
+			k = 0
+			for i = 0; i < n; i++ {
+				if rbuf[i] == 0x00 {
+					wbuf = append(wbuf, rbuf[k:i+1]...)
+					k = i + 1
+					packet, err := CobsDecode(wbuf)
 					if err != nil {
 						log.Print(err)
-						fmt.Printf("\ttsb.CobsDecode packet: %x\n", cb.Bytes())
+						fmt.Printf("\ttsb.CobsDecode packet: %x\n", wbuf)
 					} else {
 						td, err := Decode(packet)
 						if err != nil {
 							log.Print(err)
-							fmt.Printf("\ttsb.CobsDecode packet: %x\n", cb.Bytes())
+							fmt.Printf("\ttsb.CobsDecode packet: %x\n", wbuf)
 							fmt.Printf("\ttsb.Decode packet: %x\n", packet)
 						} else {
 							c <- td
 						}
 					}
-					cb.Reset()
+					wbuf = []byte{}
 				}
 			}
+			wbuf = append(wbuf, rbuf[k:n]...)
 		}
 		done <- struct{}{}
 	}()
