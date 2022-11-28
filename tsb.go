@@ -218,7 +218,7 @@ func GetData(r io.Reader) (chan TsbData, chan struct{}) {
 					wbuf = append(wbuf, rbuf[k:i+1]...)
 					k = i + 1
 					packet, err := CobsDecode(wbuf)
-					if err != nil && ErrorVerbose {
+					if err != nil {
 						if ErrorVerbose {
 							log.Print(err)
 							fmt.Printf("\tCobsDecode packet:\t%x\n", wbuf)
