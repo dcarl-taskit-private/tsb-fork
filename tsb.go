@@ -226,7 +226,7 @@ func GetData(r io.Reader) (chan TsbData, chan struct{}) {
 						if err != nil && ErrorVerbose {
 							log.Print(err)
 							fmt.Printf("\tCobsDecode packet:\t%x\n", wbuf)
-							fmt.Printf("\tDecode packet:\t%x\n", packet)
+							fmt.Printf("\tDecode packet:\t\t%x\n", packet)
 						} else {
 							c <- td
 						}
