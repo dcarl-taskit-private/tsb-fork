@@ -85,6 +85,8 @@ var TypLabel = map[byte]string{
 // Verbose is a switch for more debug outputs
 var Verbose bool
 
+var ErrorVerbose bool
+
 // Channel2Bytes converts a channel string in a []byte
 // Example: "3.4.5" -> 0x83,0x84,0x05
 func Channel2Bytes(ch string) []byte {
@@ -144,7 +146,8 @@ func Decode(packet []byte) (TsbData, error) {
 	crc := checkSum(packet[0 : len(packet)-2])
 	if byte(crc>>8) != packet[len(packet)-1] || byte(crc&0xff) != packet[len(packet)-2] {
 		//fmt.Printf("TSB-Read:\tCrc error! packet= % X, crc=% X\n", packet, crc)
-		return td, fmt.Errorf("tsb crc error, packet= % X, crc=% X", packet, crc)
+		//return td, fmt.Errorf("tsb crc error, packet= % X, crc=% X", packet, crc)
+		return td, fmt.Errorf("tsb crc error")
 	} else {
 		if Verbose {
 			fmt.Printf("TSB-Read:  Ch: 0x%X Typ: 0x%X Payload 0x% X\n", td.Ch, td.Typ, td.Payload)
@@ -179,7 +182,7 @@ func CobsDecode(b []byte) ([]byte, error) {
 	buf := new(bytes.Buffer)
 	for n := b[0]; n > 0; n = b[0] {
 		if int(n) >= len(b) {
-			return nil, fmt.Errorf("cobs length byte (%d) is bigger than remaining packet length (%d)", n, len(b))
+			return nil, fmt.Errorf("cobs length byte (%d) is bigger or equal than remaining packet length (%d)", n, len(b))
 		}
 		buf.Write(b[1:n])
 		b = b[n:]
@@ -215,12 +218,12 @@ func GetData(r io.Reader) (chan TsbData, chan struct{}) {
 					wbuf = append(wbuf, rbuf[k:i+1]...)
 					k = i + 1
 					packet, err := CobsDecode(wbuf)
-					if err != nil {
+					if err != nil && ErrorVerbose {
 						log.Print(err)
 						fmt.Printf("\ttsb.CobsDecode packet: %x\n", wbuf)
 					} else {
 						td, err := Decode(packet)
-						if err != nil {
+						if err != nil && ErrorVerbose {
 							log.Print(err)
 							fmt.Printf("\ttsb.CobsDecode packet: %x\n", wbuf)
 							fmt.Printf("\ttsb.Decode packet: %x\n", packet)
