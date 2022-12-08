@@ -1,9 +1,7 @@
 package tsb
 
-type UartBaud uint16
-
 const (
-	UartBaudAuto uint16 = iota
+	UartBaudAuto byte = iota
 	UartBaud1200
 	UartBaud2400
 	UartBaud4800
@@ -20,30 +18,32 @@ const (
 	UartBaud3000000
 )
 
-type UartBits uint16
+const (
+	UartStopbits1 byte = iota
+	UartStopbits15
+	UartStopbits2
+)
 
 const (
-	UartData8 uint16 = iota << 12
+	UartParityNone byte = iota << 2
+	UartParityEven
+	UartParityOdd
+)
+
+const (
+	UartData8 byte = iota << 4
 	UartData9
 	UartData7
 	UartData6
 	UartData5
 )
 
-const (
-	UartParityNone uint16 = iota << 10
-	UartParityEven
-	UartParityOdd
-)
-
-const (
-	UartStopbits1 uint16 = iota << 8
-	UartStopbits2
-)
-
-func (s *Server) UartInit(jack byte, baud uint16, bits uint16) (err error) {
+func (s *Server) UartInit(jack byte, baud byte, parity byte, datalen byte, databits byte) (err error) {
 	CheckJack(jack)
-	//s.I2cWrite(jack, 130, []byte{byte(baud), byte(baud >> 8), byte(bits), byte(bits >> 8)})
+	s.I2cSetAdr(jack, JackModeReg)
+	s.I2cWrite(jack, []byte{JackUart})
+	s.I2cSetAdr(jack, JackUartReg)
+	s.I2cWrite(jack, []byte{baud, parity | datalen | databits})
 	return nil
 }
 

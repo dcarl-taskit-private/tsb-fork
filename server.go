@@ -9,18 +9,18 @@ import (
 )
 
 const (
-	MaxJacks byte = 8
+	MaxJacks    byte = 8
+	JackModeReg byte = 0x80
+	JackUartReg byte = 0x82
+	JackPortReg byte = 0x86
+	JackI2cReg  byte = 0x88
 )
 
-type JackMode uint16
-
 const (
-	JackPorts JackMode = iota
-	JackUart485
-	JackUart232
+	JackPort byte = 1
 	JackI2c
-	JackSpi8
-	JackSpi16
+	JackUart
+	JackSpi
 )
 
 type jack struct {

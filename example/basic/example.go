@@ -29,7 +29,7 @@ func main() {
 
 func uartExample(s tsb.Server, jack byte) {
 	var buf []byte = make([]byte, 256)
-	err := s.UartInit(jack, tsb.UartBaud115200, tsb.UartData8&tsb.UartParityNone&tsb.UartStopbits1)
+	err := s.UartInit(jack, tsb.UartBaud115200, tsb.UartData8, tsb.UartParityNone, tsb.UartStopbits1)
 	if err != nil {
 		log.Fatal(err)
 	}
