@@ -28,9 +28,9 @@ type jack struct {
 }
 
 type Server struct {
-	address string
-	typ     string
-	jack    [MaxJacks + 1]jack
+	Adr     string
+	Typ     string
+	Jack    [MaxJacks + 1]jack
 	conn    net.Conn
 	sport   *serial.Port
 	tdPutCh chan TsbData
@@ -38,11 +38,11 @@ type Server struct {
 	done    chan struct{}
 }
 
-func NewSerialServer(address string) (Server, error) {
+func NewSerialServer(adr string) (Server, error) {
 	var err error
-	s := Server{address: address}
-	s.typ = "Serial"
-	s.sport, err = serial.OpenPort(&serial.Config{Name: address, Baud: 115200})
+	s := Server{Adr: adr}
+	s.Typ = "Serial"
+	s.sport, err = serial.OpenPort(&serial.Config{Name: adr, Baud: 115200})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -52,11 +52,11 @@ func NewSerialServer(address string) (Server, error) {
 	return s, nil
 }
 
-func NewTcpServer(address string) (Server, error) {
+func NewTcpServer(adr string) (Server, error) {
 	var err error
-	s := Server{address: address}
-	s.typ = "TCP"
-	s.conn, err = net.Dial("tcp", address)
+	s := Server{Adr: adr}
+	s.Typ = "TCP"
+	s.conn, err = net.Dial("tcp", adr)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -68,12 +68,12 @@ func NewTcpServer(address string) (Server, error) {
 
 func (s *Server) serv() {
 	for i := 0; i <= int(MaxJacks); i++ {
-		s.jack[i].ReadChan[TypI2c] = make(chan byte, 1024)
-		s.jack[i].ReadChan[TypPort] = make(chan byte, 1024)
-		s.jack[i].ReadChan[TypRaw] = make(chan byte, 1024)
-		s.jack[i].ReadChan[TypError] = make(chan byte, 1024)
+		s.Jack[i].ReadChan[TypI2c] = make(chan byte, 1024)
+		s.Jack[i].ReadChan[TypPort] = make(chan byte, 1024)
+		s.Jack[i].ReadChan[TypRaw] = make(chan byte, 1024)
+		s.Jack[i].ReadChan[TypError] = make(chan byte, 1024)
 	}
-	fmt.Printf("TSB client connected to tsb server: %s\n", s.address)
+	fmt.Printf("TSB client connected to tsb server: %s\n", s.Adr)
 	go func(s *Server) {
 		for {
 			select {
@@ -88,16 +88,16 @@ func (s *Server) serv() {
 						//log.Printf("Invalid Jacknr %d!\n\r", td.Ch[0])
 						break
 					}
-					if s.jack[td.Ch[0]].ReadChan[td.Typ[0]] == nil {
+					if s.Jack[td.Ch[0]].ReadChan[td.Typ[0]] == nil {
 						log.Printf("Channel: %d, Type: %d is not initialized!\n\r", td.Ch[0], td.Typ[0])
 						break
 					}
-					if len(s.jack[td.Ch[0]].ReadChan[td.Typ[0]]) > 800 {
+					if len(s.Jack[td.Ch[0]].ReadChan[td.Typ[0]]) > 800 {
 						log.Printf("Read Channel Overflow! Jack: %d, Typ: %d, cap: %d, len: %d", td.Ch[0], td.Typ[0],
-							cap(s.jack[td.Ch[0]].ReadChan[td.Typ[0]]), len(s.jack[td.Ch[0]].ReadChan[td.Typ[0]]))
+							cap(s.Jack[td.Ch[0]].ReadChan[td.Typ[0]]), len(s.Jack[td.Ch[0]].ReadChan[td.Typ[0]]))
 					}
 					for i := range td.Payload {
-						s.jack[td.Ch[0]].ReadChan[td.Typ[0]] <- td.Payload[i]
+						s.Jack[td.Ch[0]].ReadChan[td.Typ[0]] <- td.Payload[i]
 						//	fmt.Printf("%x\n", td.Payload[i])
 					}
 				}

@@ -38,29 +38,48 @@ const (
 	UartData5
 )
 
-func (s *Server) UartInit(jack byte, baud byte, parity byte, datalen byte, databits byte) (err error) {
+// UART represents a connection to UART-device.
+type UART struct {
+	Jack   byte
+	Server Server
+}
+
+// NewUart opens a connection.
+func NewUart(jack byte, server Server) (*UART, error) {
 	CheckJack(jack)
-	s.I2cSetAdr(jack, JackModeReg)
-	s.I2cWrite(jack, []byte{JackUart})
-	s.I2cSetAdr(jack, JackUartReg)
-	s.I2cWrite(jack, []byte{baud, parity | datalen | databits})
+	uart := &UART{Server: server, Jack: jack}
+	return uart, nil
+}
+
+// Init initializes the UART with Baudrate, Datalen, Parity and Stopbits
+func (u *UART) Init(baud byte, parity byte, datalen byte, databits byte) (err error) {
+	CheckJack(u.Jack)
+	/*
+		i2c := NewI2c(u.server,u.jack)
+		u.server.SetAdr(u.jack, JackModeReg)
+		u.server.I2cWrite(u.jack, []byte{JackUart})
+		u.server.I2cSetAdr(u.jack, JackUartReg)
+		u.server.I2cWrite(u.jack, []byte{baud, datalen | parity | databits})
+	*/
 	return nil
 }
 
-func (s *Server) UartWrite(jack byte, b []byte) (n int, err error) {
-	td := TsbData{Ch: []byte{byte(jack)}, Typ: []byte{TypRaw}, Payload: b}
-	s.tdPutCh <- td
+// Write writes a buffer to the uart
+func (u *UART) Write(b []byte) (n int, err error) {
+	td := TsbData{Ch: []byte{byte(u.Jack)}, Typ: []byte{TypRaw}, Payload: b}
+	u.Server.tdPutCh <- td
 	return len(b), nil
 }
 
-func (s *Server) UartRead(jack byte, b []byte) (n int, err error) {
-	b[0] = <-s.jack[jack].ReadChan[TypRaw]
-	n = len(s.jack[jack].ReadChan[TypRaw]) + 1
+// Read reads a buffer from the uart
+func (u *UART) Read(b []byte) (n int, err error) {
+	b[0] = <-u.Server.Jack[u.Jack].ReadChan[TypRaw]
+	n = len(u.Server.Jack[u.Jack].ReadChan[TypRaw]) + 1
 	if n > len(b) {
 		n = len(b)
 	}
 	for i := 1; i < n; i++ {
-		b[i] = <-s.jack[jack].ReadChan[TypRaw]
+		b[i] = <-u.Server.Jack[u.Jack].ReadChan[TypRaw]
 	}
 	return n, nil
 }

@@ -188,7 +188,7 @@ func (v *SensorBME280) ReadSensorID(i2c *tsb.I2C) (uint8, error) {
 // ReadCoefficients reads compensation coefficients, unique for each sensor.
 func (v *SensorBME280) ReadCoefficients(i2c *tsb.I2C) error {
 	// read coefficients #1
-	_, err := i2c.WriteBytes([]byte{BME280_COEF_PART1_START})
+	_, err := i2c.Write([]byte{BME280_COEF_PART1_START})
 	if err != nil {
 		return err
 	}
@@ -200,7 +200,7 @@ func (v *SensorBME280) ReadCoefficients(i2c *tsb.I2C) error {
 	}
 
 	// read coefficients #2
-	_, err = i2c.WriteBytes([]byte{BME280_COEF_PART2_START})
+	_, err = i2c.Write([]byte{BME280_COEF_PART2_START})
 	if err != nil {
 		return err
 	}
@@ -212,7 +212,7 @@ func (v *SensorBME280) ReadCoefficients(i2c *tsb.I2C) error {
 	}
 
 	// read coefficients #3
-	_, err = i2c.WriteBytes([]byte{BME280_COEF_PART3_START})
+	_, err = i2c.Write([]byte{BME280_COEF_PART3_START})
 	if err != nil {
 		return err
 	}

@@ -135,7 +135,7 @@ func (v *SensorBMP180) ReadSensorID(i2c *tsb.I2C) (uint8, error) {
 
 // ReadCoefficients reads compensation coefficients, unique for each sensor.
 func (v *SensorBMP180) ReadCoefficients(i2c *tsb.I2C) error {
-	_, err := i2c.WriteBytes([]byte{BMP180_COEF_START})
+	_, err := i2c.Write([]byte{BMP180_COEF_START})
 	if err != nil {
 		return err
 	}

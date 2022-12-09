@@ -34,7 +34,7 @@ func (s *Server) PortInit(jack byte) (err error) {
 }
 
 func (s *Server) PortGetc(jack byte) (c byte) {
-	c = <-s.jack[jack].ReadChan[TypPort]
+	c = <-s.Jack[jack].ReadChan[TypPort]
 	return c
 }
 

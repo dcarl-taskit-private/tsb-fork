@@ -88,7 +88,7 @@ func waitForCompletion(sensor SensorInterface, i2c *tsb.I2C) (timeout bool, err 
 func readDataToStruct(i2c *tsb.I2C, byteCount int,
 	byteOrder binary.ByteOrder, obj interface{}) error {
 	buf1 := make([]byte, byteCount)
-	_, err := i2c.ReadBytes(buf1)
+	_, err := i2c.Read(buf1)
 	if err != nil {
 		return err
 	}

@@ -14,33 +14,37 @@ const MyJack byte = 5 // select Jack 1-8
 func main() {
 	var buf []byte = make([]byte, 256)
 	//serv, err := tsb.NewSerialServer("/dev/ttyUSB0")
-	s, err := tsb.NewTcpServer("localhost:3001")
+	serv, err := tsb.NewTcpServer("localhost:3001")
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = s.UartInit(MyJack, tsb.UartBaud115200, tsb.UartData8, tsb.UartParityNone, tsb.UartStopbits1)
+	uart, err := tsb.NewUart(MyJack, serv)
 	if err != nil {
 		log.Fatal(err)
 	}
-	go func(jack byte) {
+	err = uart.Init(tsb.UartBaud115200, tsb.UartData8, tsb.UartParityNone, tsb.UartStopbits1)
+	if err != nil {
+		log.Fatal(err)
+	}
+	go func() {
 		for {
-			_, err := s.UartWrite(jack, []byte("Hello Jack"+strconv.Itoa(int(jack))+"\n"))
+			_, err := uart.Write([]byte("Hello Jack" + strconv.Itoa(int(uart.Jack)) + "\n"))
 			if err != nil {
 				log.Fatal(err)
 			}
 			time.Sleep(5 * time.Duration(time.Second))
 		}
-	}(MyJack)
-	go func(jack byte) {
+	}()
+	go func() {
 		for {
 			//fmt.Printf("%d", jack)
-			n, err := s.UartRead(jack, buf)
+			n, err := uart.Read(buf)
 			if err != nil {
 				log.Fatal(err)
 			}
 			if n > 0 {
-				fmt.Printf("Received from Jack %d: %s\n", jack, buf)
+				fmt.Printf("Received from Jack %d: %s\n", uart.Jack, buf)
 			}
 		}
-	}(MyJack)
+	}()
 }

@@ -1,14 +1,6 @@
 package main
 
-import (
-	"fmt"
-	"log"
-	"strconv"
-	"time"
-
-	"github.com/traulfs/tsb"
-)
-
+/*
 func main() {
 	//serv, err := tsb.NewSerialServer("/dev/ttyUSB0")
 	serv, err := tsb.NewTcpServer("localhost:3001")
@@ -89,3 +81,4 @@ func portExample(s tsb.Server, jack byte) {
 
 func i2cExample(s tsb.Server, jack byte) {
 }
+*/
