@@ -13,7 +13,7 @@ const MyJack byte = 5 // select Jack 1-8
 
 func main() {
 	server, err := tsb.NewTcpServer("localhost:3010")
-	//server, err := tsb.NewSerialServer("/dev/tty.usbmodem11401")
+	//server, err := tsb.NewSerialServer("/dev/tty.usbmodem1401")
 	if err != nil {
 		Fatal(err)
 	}

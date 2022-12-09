@@ -71,6 +71,7 @@ func (s *Server) serv() {
 		s.jack[i].ReadChan[TypI2c] = make(chan byte, 1024)
 		s.jack[i].ReadChan[TypPort] = make(chan byte, 1024)
 		s.jack[i].ReadChan[TypRaw] = make(chan byte, 1024)
+		s.jack[i].ReadChan[TypError] = make(chan byte, 1024)
 	}
 	fmt.Printf("TSB client connected to tsb server: %s\n", s.address)
 	go func(s *Server) {
@@ -88,7 +89,7 @@ func (s *Server) serv() {
 						break
 					}
 					if s.jack[td.Ch[0]].ReadChan[td.Typ[0]] == nil {
-						log.Printf("Channel: %d is not initialized!\n\r", td.Ch[0])
+						log.Printf("Channel: %d, Type: %d is not initialized!\n\r", td.Ch[0], td.Typ[0])
 						break
 					}
 					if len(s.jack[td.Ch[0]].ReadChan[td.Typ[0]]) > 800 {

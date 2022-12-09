@@ -15,9 +15,21 @@ type I2C struct {
 // NewI2C opens a connection for I2C-device.
 func NewI2c(addr uint8, jack byte, server Server) (*I2C, error) {
 	CheckJack(jack)
-	server.I2cSetAdr(jack, JackModeReg)
-	server.I2cWrite(jack, []byte{JackI2c})
-	server.I2cSetAdr(jack, addr)
+	/*
+		err := server.I2cSetAdr(jack, JackModeReg)
+		if err != nil {
+			return nil, fmt.Errorf("I2cSetAdr1 failed, %v", err)
+		}
+
+			_, err = server.I2cWrite(jack, []byte{JackI2c, 0})
+			if err != nil {
+				return nil, fmt.Errorf("set I2C mode failed")
+			}
+			err = server.I2cSetAdr(jack, addr)
+			if err != nil {
+				return nil, fmt.Errorf("I2cSetAdr2 failed")
+			}
+	*/
 	i2c := &I2C{server: server, addr: addr, jack: jack}
 	return i2c, nil
 }
@@ -253,7 +265,7 @@ func (s *Server) I2cWrite(jack byte, b []byte) (n int, err error) {
 		if a == byte(n) {
 			return 0, nil
 		} else {
-			return 0, fmt.Errorf("wrong response: %x", a)
+			return 0, fmt.Errorf("I2cWrite wrong response: %x", a)
 		}
 	case <-time.After(1 * time.Second):
 		return 0, fmt.Errorf("timeout")
