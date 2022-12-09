@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"os"
+	"log"
 
 	"github.com/traulfs/tsb"
 )
@@ -15,91 +15,75 @@ func main() {
 	server, err := tsb.NewTcpServer("localhost:3010")
 	//server, err := tsb.NewSerialServer("/dev/tty.usbmodem1401")
 	if err != nil {
-		Fatal(err)
+		log.Fatal(err)
 	}
 	// Create new connection to i2c-bus on 1 line with address 0x76.
 	// Use i2cdetect utility to find device address over the i2c-bus
 	i2c, err := tsb.NewI2c(0x76, MyJack, server)
 	if err != nil {
-		Fatal(err)
+		log.Fatal(err)
 	}
-	//defer i2c.Close()
-
-	//Notify("***************************************************************************************************")
 
 	// sensor, err := NewBMP(BMP180, i2c) // signature=0x55
 	// sensor, err := NewBMP(BMP280, i2c) // signature=0x58
 	sensor, err := NewBMP(BME280, i2c) // signature=0x60
 	// sensor, err := NewBMP(BMP388, i2c) // signature=0x50
 	if err != nil {
-		Fatal(err)
+		log.Fatal(err)
 	}
 
 	id, err := sensor.ReadSensorID()
 	if err != nil {
-		Fatal(err)
+		log.Fatal(err)
 	}
-	Infof("This Bosch Sensortec sensor has signature: 0x%x", id)
+	fmt.Printf("This Bosch Sensortec sensor has signature: 0x%x\n", id)
 
 	err = sensor.IsValidCoefficients()
 	if err != nil {
-		Fatal(err)
+		log.Fatal(err)
 	}
 
 	// Read temperature in celsius degree
 	t, err := sensor.ReadTemperatureC(ACCURACY_STANDARD)
 	if err != nil {
-		Fatal(err)
+		log.Fatal(err)
 	}
-	Infof("Temperature = %v°C", t)
+	fmt.Printf("Temperature = %v°C\n", t)
 
 	// Read atmospheric pressure in pascal
 	p, err := sensor.ReadPressurePa(ACCURACY_LOW)
 	if err != nil {
-		Fatal(err)
+		log.Fatal(err)
 	}
-	Infof("Pressure = %v Pa", p)
+	fmt.Printf("Pressure = %v Pa\n", p)
 
 	// Read atmospheric pressure in mmHg
 	p, err = sensor.ReadPressureMmHg(ACCURACY_LOW)
 	if err != nil {
-		Fatal(err)
+		log.Fatal(err)
 	}
-	Infof("Pressure = %v mmHg", p)
+	fmt.Printf("Pressure = %v mmHg\n", p)
 
 	// Read atmospheric pressure in mmHg
 	supported, h1, err := sensor.ReadHumidityRH(ACCURACY_LOW)
 	if supported {
 		if err != nil {
-			Fatal(err)
+			log.Fatal(err)
 		}
-		Infof("Humidity = %v %%", h1)
+		fmt.Printf("Humidity = %v %%\n", h1)
 	}
 
 	// Read atmospheric altitude in meters above sea level, if we assume
 	// that pressure at see level is equal to 101325 Pa.
 	a, err := sensor.ReadAltitude(ACCURACY_LOW)
 	if err != nil {
-		Fatal(err)
+		log.Fatal(err)
 	}
-	Infof("Altitude = %v m", a)
+	fmt.Printf("Altitude = %v m\n", a)
 }
 
 func Debugf(format string, values ...interface{}) {
 	if verbose {
 		fmt.Printf("Debug: "+format+"\r\n", values...)
 	}
-}
-
-func Fatal(error error) {
-	fmt.Printf("Fatal: %s\r\n", error)
-	os.Exit(1)
-}
-
-func Notify(message string) {
-	fmt.Printf("Notify: %s\r\n", message)
-}
-
-func Infof(format string, values ...interface{}) {
-	fmt.Printf("Info: "+format+"\r\n", values...)
 }
