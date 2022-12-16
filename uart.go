@@ -1,7 +1,7 @@
 package tsb
 
 const (
-	UartBaudAuto byte = iota
+	UartBaudAuto uint16 = iota
 	UartBaud1200
 	UartBaud2400
 	UartBaud4800
@@ -19,19 +19,19 @@ const (
 )
 
 const (
-	UartStopbits1 byte = iota
+	UartStopbits1 uint16 = iota << 8
 	UartStopbits15
 	UartStopbits2
 )
 
 const (
-	UartParityNone byte = iota << 2
+	UartParityNone uint16 = iota << 10
 	UartParityEven
 	UartParityOdd
 )
 
 const (
-	UartData8 byte = iota << 4
+	UartData8 uint16 = iota << 12
 	UartData9
 	UartData7
 	UartData6
@@ -47,20 +47,20 @@ type UART struct {
 // NewUart opens a connection.
 func NewUart(jack byte, server Server) (*UART, error) {
 	CheckJack(jack)
+	err := ModbusWriteSingleRegister(ModeRegisterAdr, jack, server, RegModeValueUart)
+	if err != nil {
+		return nil, err
+	}
 	uart := &UART{Server: server, Jack: jack}
 	return uart, nil
 }
 
-// Init initializes the UART with Baudrate, Datalen, Parity and Stopbits
-func (u *UART) Init(baud byte, parity byte, datalen byte, databits byte) (err error) {
-	CheckJack(u.Jack)
-	/*
-		i2c := NewI2c(u.server,u.jack)
-		u.server.SetAdr(u.jack, JackModeReg)
-		u.server.I2cWrite(u.jack, []byte{JackUart})
-		u.server.I2cSetAdr(u.jack, JackUartReg)
-		u.server.I2cWrite(u.jack, []byte{baud, datalen | parity | databits})
-	*/
+// Config ?
+func (u *UART) Config(baud uint16, databits uint16, parity uint16, stopbits uint16) error {
+	err := ModbusWriteSingleRegister(UartRegisterAdr, u.Jack, u.Server, baud|databits|parity|stopbits)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

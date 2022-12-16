@@ -72,6 +72,7 @@ func (s *Server) serv() {
 		s.Jack[i].ReadChan[TypPort] = make(chan byte, 1024)
 		s.Jack[i].ReadChan[TypRaw] = make(chan byte, 1024)
 		s.Jack[i].ReadChan[TypError] = make(chan byte, 1024)
+		s.Jack[i].ReadChan[TypModbus] = make(chan byte, 1024)
 	}
 	fmt.Printf("TSB client connected to tsb server: %s\n", s.Adr)
 	go func(s *Server) {

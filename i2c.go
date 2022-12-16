@@ -15,22 +15,15 @@ type I2C struct {
 // NewI2C opens a connection for I2C-device.
 func NewI2c(adr uint8, jack byte, server Server) (*I2C, error) {
 	CheckJack(jack)
-	/*
-		err := server.I2cSetAdr(jack, JackModeReg)
-		if err != nil {
-			return nil, fmt.Errorf("I2cSetAdr1 failed, %v", err)
-		}
-
-			_, err = server.I2cWrite(jack, []byte{JackI2c, 0})
-			if err != nil {
-				return nil, fmt.Errorf("set I2C mode failed")
-			}
-			err = server.I2cSetAdr(jack, addr)
-			if err != nil {
-				return nil, fmt.Errorf("I2cSetAdr2 failed")
-			}
-	*/
 	i2c := &I2C{Server: server, Adr: adr, Jack: jack}
+	err := ModbusWriteSingleRegister(ModeRegisterAdr, jack, server, RegModeValueI2c)
+	if err != nil {
+		return nil, err
+	}
+	err = i2c.SetAdr(i2c.Adr)
+	if err != nil {
+		return nil, err
+	}
 	return i2c, nil
 }
 
