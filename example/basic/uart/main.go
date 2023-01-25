@@ -22,7 +22,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = uart.Init(tsb.UartBaud115200, tsb.UartData8, tsb.UartParityNone, tsb.UartStopbits1)
+	err = uart.Config(tsb.UartBaud115200, tsb.UartData8, tsb.UartParityNone, tsb.UartStopbits1)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -47,4 +47,7 @@ func main() {
 			}
 		}
 	}()
+	for {
+		time.Sleep(1 * time.Duration(time.Second))
+	}
 }
